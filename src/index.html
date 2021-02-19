@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <title>Apple Website Scroll Effect</title>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      .container {
+        overflow: auto;
+        height: 100vh;
+      }
+
+      .sticky-content {
+        position: sticky;
+        height: 100vh;
+        top: 0px;
+      }
+
+      .section1 {
+        height: 3000px;
+      }
+
+      .section1 .sticky-content {
+        background: linear-gradient(to left bottom, red, #42447a);
+      }
+
+      .section2 {
+        height: 4000px;
+      }
+
+      .section2 .sticky-content {
+        background-color: #167fc0;
+      }
+
+      .section3 {
+        height: 5000px;
+      }
+
+      .section3 .sticky-content {
+        background: linear-gradient(to left bottom, #c4d9f3, #fab244);
+      }
+
+      .intro {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        font-size: 240px;
+        line-height: 1;
+        font-weight: 600;
+        letter-spacing: -0.025em;
+        font-family: "SF Pro Display", "SF Pro Icons", "Helvetica Neue",
+          "Helvetica", "Arial", sans-serif;
+        color: #fff;
+        will-change: opacity;
+      }
+
+      .image-mac-desktop {
+        width: 100vw;
+        will-change: transform;
+      }
+
+      .image-mac-safari {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 600px;
+        will-change: transform;
+        transform: translate3d(100%, 100%, 0);
+      }
+
+      .image-mac-map {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 800px;
+        will-change: transform;
+        transform: translate3d(-100%, -100%, 0);
+      }
+
+      .image-mac-desktop2 {
+        width: 1200px;
+        will-change: transform;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="container">
+      <section class="section1">
+        <div class="sticky-content">
+          <div class="intro">Mac Niubility</div>
+        </div>
+      </section>
+      <section class="section2">
+        <div class="sticky-content">
+          <img
+            class="image-mac-desktop"
+            src="https://www.apple.com/v/macos/big-sur/b/images/overview/hero/hero_desktop__gd4s9ddcapu2_large_2x.jpg"
+          />
+          <img
+            class="image-mac-map"
+            src="https://www.apple.com/v/macos/big-sur/b/images/overview/hero/hero_map__mt4m02rrevue_large_2x.png"
+          />
+          <img
+            class="image-mac-safari"
+            src="https://www.apple.com/v/macos/big-sur/b/images/overview/hero/hero_safari__bralnc3zflle_large_2x.png"
+          />
+        </div>
+      </section>
+      <section class="section3">
+        <div
+          class="sticky-content"
+          style="display: flex; align-items: center; justify-content: center"
+        >
+          <img
+            class="image-mac-desktop2"
+            src="https://www.apple.com/v/macos/big-sur/b/images/overview/experience/experience_screen_apps__gartmv6yn3u6_large_2x.jpg"
+          />
+        </div>
+      </section>
+    </main>
+    <script
+      type="text/javascript"
+      src="https://zeptojs.com/zepto.min.js"
+    ></script>
+    <script type="text/javascript">
+      // 1. 使用 position: sticky 将内容固定在可视区
+      // 2. 监听滚动进度设置效果
+
+      // 最终可封装成库，配置效果即可使用
+
+      const section1Height = 3000;
+      const section2Height = 4000;
+      const section3Height = 5000;
+
+      const $body = $("body");
+      const $container = $(".container");
+      const $intro = $(".intro").first();
+      const $imageMacDesktop = $(".image-mac-desktop").first();
+      const $imageMacMap = $(".image-mac-map").first();
+      const $imageMacSafari = $(".image-mac-safari").first();
+      const $imageMacDesktop2 = $(".image-mac-desktop2").first();
+      const bodyHeight = $body.height();
+
+      $container.on("scroll", (e) => {
+        const scrollTop = $container.scrollTop();
+        // section1
+        if (scrollTop < section1Height - bodyHeight) {
+          const progress = scrollTop / (section1Height - bodyHeight);
+          if (progress > 1) {
+            return;
+          }
+
+          const opacity = 1 - progress;
+          $intro.attr("style", `opacity: ${opacity}`);
+        } else if (scrollTop < section1Height + section2Height) {
+          // section2
+          const progress =
+            (scrollTop - section1Height) / (section2Height - bodyHeight);
+          if (progress > 1) {
+            return;
+          }
+
+          const minScale = 0.8;
+          const scale = 1 - (1 - minScale) * progress;
+          $imageMacDesktop.attr("style", `transform: scale(${scale})`);
+
+          (() => {
+            const targetTop = 200;
+            const targetLeft = 200;
+            const translateY =
+              (targetTop + $imageMacMap.height()) * progress -
+              $imageMacMap.height();
+            const translateX =
+              (targetLeft + $imageMacMap.width()) * progress -
+              $imageMacMap.width();
+            $imageMacMap.attr(
+              "style",
+              `transform: translate3d(${translateX}px, ${translateY}px, 0)`
+            );
+          })();
+
+          const targetBottom = 100;
+          const targetRight = 350;
+          const translateY =
+            (targetBottom + $imageMacSafari.height()) * progress -
+            $imageMacSafari.height();
+          const translateX =
+            (targetRight + $imageMacSafari.width()) * progress -
+            $imageMacSafari.width();
+          $imageMacSafari.attr(
+            "style",
+            `transform: translate3d(${-translateX}px, ${-translateY}px, 0)`
+          );
+        } else {
+          // section3
+          const progress =
+            (scrollTop - section1Height - section2Height) /
+            (section3Height - bodyHeight);
+          if (progress > 1) {
+            return;
+          }
+
+          const maxTranslate = 500;
+          const translate = progress * maxTranslate;
+          $imageMacDesktop2.attr(
+            "style",
+            `transform: translate3d(${translate}px, 0, 0)`
+          );
+        }
+      });
+    </script>
+  </body>
+</html>
